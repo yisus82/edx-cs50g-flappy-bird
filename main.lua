@@ -63,8 +63,8 @@ end
   Called after update by LÖVE2D, used to draw anything to the screen, updated or otherwise.
 ]]
 function love.draw()
-  -- begin rendering at virtual resolution
-  push:apply('start')
+  -- start rendering at virtual resolution
+  push:start()
 
   -- draw the background starting at top left (0, 0)
   love.graphics.draw(background, 0, 0)
@@ -72,6 +72,6 @@ function love.draw()
   -- draw the ground on top of the background, toward the bottom of the screen
   love.graphics.draw(ground, 0, VIRTUAL_HEIGHT - 16)
 
-  -- end rendering at virtual resolution
-  push:apply('end')
+  -- finish rendering at virtual resolution
+  push:finish()
 end
