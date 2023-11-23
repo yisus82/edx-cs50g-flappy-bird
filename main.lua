@@ -7,9 +7,23 @@
 ]]
 local push = require 'push'
 
+--[[
+  class is a library we're using that will allow us to represent anything in our
+  game as code, rather than keeping track of many disparate variables and methods
+
+  https://github.com/vrld/hump/blob/master/class.lua
+]]
+Class = require 'class'
+
+--[[
+  Bird is our class for our flappy bird, which stores position and dimensions for
+  the bird and the sprite sheet we'll be rendering to the screen to represent it.
+]]
+require 'Bird'
+
 -- virtual resolution dimensions
-local VIRTUAL_WIDTH = 512
-local VIRTUAL_HEIGHT = 288
+VIRTUAL_WIDTH = 512
+VIRTUAL_HEIGHT = 288
 
 -- actual window dimensions
 local WINDOW_WIDTH, WINDOW_HEIGHT = love.window.getDesktopDimensions()
@@ -28,6 +42,9 @@ local GROUND_SCROLL_SPEED = 60
 
 -- point at which we should loop our background back to X 0
 local BACKGROUND_LOOPING_POINT = 413
+
+-- our bird sprite
+local bird = Bird()
 
 --[[
   Called exactly once at the beginning of the game; used to initialize the game.
@@ -92,6 +109,9 @@ function love.draw()
 
   -- draw the ground on top of the background, toward the bottom of the screen
   love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT - 16)
+
+  -- render our bird to the screen using its own render logic
+  bird:render()
 
   -- finish rendering at virtual resolution
   push:finish()
