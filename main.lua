@@ -8,15 +8,26 @@
 local push = require 'push'
 
 -- virtual resolution dimensions
-VIRTUAL_WIDTH = 512
-VIRTUAL_HEIGHT = 288
+local VIRTUAL_WIDTH = 512
+local VIRTUAL_HEIGHT = 288
 
 -- actual window dimensions
-WINDOW_WIDTH, WINDOW_HEIGHT = love.window.getDesktopDimensions()
+local WINDOW_WIDTH, WINDOW_HEIGHT = love.window.getDesktopDimensions()
 
--- images we load into memory from files to later draw onto the screen
+-- background image and starting scroll location (X axis)
 local background = love.graphics.newImage('images/background.png')
+local backgroundScroll = 0
+
+-- ground image and starting scroll location (X axis)
 local ground = love.graphics.newImage('images/ground.png')
+local groundScroll = 0
+
+-- speed at which we should scroll our images, scaled by dt
+local BACKGROUND_SCROLL_SPEED = 30
+local GROUND_SCROLL_SPEED = 60
+
+-- point at which we should loop our background back to X 0
+local BACKGROUND_LOOPING_POINT = 413
 
 --[[
   Called exactly once at the beginning of the game; used to initialize the game.
@@ -60,6 +71,16 @@ function love.keypressed(key, _scancode, _isrepeat)
 end
 
 --[[
+  Called every frame by LÖVE; dt will be elapsed time in seconds since the last frame,
+  and is passed into update dt.
+]]
+function love.update(dt)
+  -- scroll our background and ground, looping back to 0 after a certain amount
+  backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
+  groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
+end
+
+--[[
   Called after update by LÖVE2D, used to draw anything to the screen, updated or otherwise.
 ]]
 function love.draw()
@@ -67,10 +88,10 @@ function love.draw()
   push:start()
 
   -- draw the background starting at top left (0, 0)
-  love.graphics.draw(background, 0, 0)
+  love.graphics.draw(background, -backgroundScroll, 0)
 
   -- draw the ground on top of the background, toward the bottom of the screen
-  love.graphics.draw(ground, 0, VIRTUAL_HEIGHT - 16)
+  love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT - 16)
 
   -- finish rendering at virtual resolution
   push:finish()
