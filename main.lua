@@ -62,6 +62,9 @@ function love.load()
     resizable = true,
     vsync = true
   })
+
+  -- initialize input table
+  love.keyboard.keysPressed = {}
 end
 
 --[[
@@ -83,10 +86,20 @@ end
   depends on the user's system settings.
 ]]
 function love.keypressed(key, _scancode, _isrepeat)
+  -- add to our table of keys pressed this frame
+  love.keyboard.keysPressed[key] = true
   if key == 'escape' then
     -- function LÖVE gives us to terminate the application
     love.event.quit()
   end
+end
+
+--[[
+  Check our global input table for keys we activated during
+  this frame, looked up by their string value.
+]]
+function love.keyboard.wasPressed(key)
+  return love.keyboard.keysPressed[key]
 end
 
 --[[
@@ -100,6 +113,9 @@ function love.update(dt)
 
   -- update our bird based on its own update logic
   bird:update(dt)
+
+  -- reset input table
+  love.keyboard.keysPressed = {}
 end
 
 --[[

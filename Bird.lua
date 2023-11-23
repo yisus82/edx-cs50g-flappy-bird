@@ -7,7 +7,8 @@ Bird = Class {}
 -- gravity is a constant, acceleration in the Y axis
 local GRAVITY = 20
 
-
+-- jump velocity; negative due to y-axis inversion
+local JUMP_VELOCITY = -5
 
 --[[
   The init function on our class is called just once, when the object is first
@@ -37,6 +38,11 @@ end
 function Bird:update(dt)
   -- apply gravity to velocity
   self.dy = self.dy + GRAVITY * dt
+
+  -- add a sudden burst of negative gravity if we hit space
+  if love.keyboard.wasPressed('space') then
+    self.dy = JUMP_VELOCITY
+  end
 
   -- apply current velocity to Y position
   self.y = self.y + self.dy
