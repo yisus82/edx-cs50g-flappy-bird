@@ -71,6 +71,7 @@ end
   @param h The new height.
 ]]
 function love.resize(w, h)
+  -- pass in the width and height to push so our virtual resolution can be resized as needed
   push:resize(w, h)
 end
 
@@ -83,6 +84,7 @@ end
 ]]
 function love.keypressed(key, _scancode, _isrepeat)
   if key == 'escape' then
+    -- function LÖVE gives us to terminate the application
     love.event.quit()
   end
 end
@@ -95,6 +97,9 @@ function love.update(dt)
   -- scroll our background and ground, looping back to 0 after a certain amount
   backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
   groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
+
+  -- update our bird based on its own update logic
+  bird:update(dt)
 end
 
 --[[

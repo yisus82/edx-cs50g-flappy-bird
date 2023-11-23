@@ -4,6 +4,11 @@
   ]]
 Bird = Class {}
 
+-- gravity is a constant, acceleration in the Y axis
+local GRAVITY = 20
+
+
+
 --[[
   The init function on our class is called just once, when the object is first
   created. Used to set up all variables in the class and get it ready for use.
@@ -17,6 +22,24 @@ function Bird:init()
   -- position bird in the middle of the screen
   self.x = VIRTUAL_WIDTH / 2 - (self.width / 2)
   self.y = VIRTUAL_HEIGHT / 2 - (self.height / 2)
+
+  -- velocity in Y axis
+  self.dy = 0
+end
+
+--[[
+  Called each frame, passing in `dt` since the last frame. `dt` is short for
+  `deltaTime` and is measured in seconds. Multiplying this by any changes we wish
+  to make in our game will allow our game to perform consistently across all
+  hardware; otherwise, any changes we make will be applied as fast as possible
+  and will vary across system hardware.
+  ]]
+function Bird:update(dt)
+  -- apply gravity to velocity
+  self.dy = self.dy + GRAVITY * dt
+
+  -- apply current velocity to Y position
+  self.y = self.y + self.dy
 end
 
 --[[
