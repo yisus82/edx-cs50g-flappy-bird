@@ -21,6 +21,12 @@ Class = require 'class'
 ]]
 require 'Bird'
 
+--[[
+  Pipe is our class for the pipes that can stick out from the top or bottom of
+  the screen, which will act as our primary obstacles.
+]]
+require 'Pipe'
+
 -- virtual resolution dimensions
 VIRTUAL_WIDTH = 512
 VIRTUAL_HEIGHT = 288
@@ -45,6 +51,12 @@ local BACKGROUND_LOOPING_POINT = 413
 
 -- our bird sprite
 local bird = Bird()
+
+-- our table of spawning Pipes
+local pipes = {}
+
+-- our timer for spawning pipes
+local spawnTimer = 0
 
 --[[
   Called exactly once at the beginning of the game; used to initialize the game.
@@ -111,6 +123,24 @@ function love.update(dt)
   backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
   groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
 
+  -- spawn a new Pipe if the timer is past 2 seconds
+  spawnTimer = spawnTimer + dt
+  if spawnTimer > 2 then
+    table.insert(pipes, Pipe())
+    spawnTimer = 0
+  end
+
+  -- for every pipe in the scene...
+  for key, pipe in pairs(pipes) do
+    -- update pipe positions
+    pipe:update(dt)
+
+    -- if pipe is no longer visible past left edge, remove it from scene
+    if pipe.x < -pipe.width then
+      table.remove(pipes, key)
+    end
+  end
+
   -- update our bird based on its own update logic
   bird:update(dt)
 
@@ -127,6 +157,11 @@ function love.draw()
 
   -- draw the background starting at top left (0, 0)
   love.graphics.draw(background, -backgroundScroll, 0)
+
+  -- render all the pipes in our scene
+  for _key, pipe in pairs(pipes) do
+    pipe:render()
+  end
 
   -- draw the ground on top of the background, toward the bottom of the screen
   love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT - 16)
