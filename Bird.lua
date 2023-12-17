@@ -5,15 +5,15 @@
 Bird = Class {}
 
 -- gravity is a constant, acceleration in the Y axis
-local GRAVITY = 20
+local GRAVITY = 10
 
 -- jump velocity; negative due to y-axis inversion
-local JUMP_VELOCITY = -5
+local JUMP_VELOCITY = -3
 
 --[[
   The init function on our class is called just once, when the object is first
   created. Used to set up all variables in the class and get it ready for use.
-  ]]
+]]
 function Bird:init()
   -- load bird image from disk and assign its width and height
   self.image = love.graphics.newImage('images/bird.png')
@@ -34,7 +34,7 @@ end
   to make in our game will allow our game to perform consistently across all
   hardware; otherwise, any changes we make will be applied as fast as possible
   and will vary across system hardware.
-  ]]
+]]
 function Bird:update(dt)
   -- apply gravity to velocity
   self.dy = self.dy + GRAVITY * dt
@@ -51,7 +51,7 @@ end
 --[[
   Called when we want to render the bird to the screen.
   Simply draws the bird in the center of the screen.
-  ]]
+]]
 function Bird:render()
   love.graphics.draw(self.image, self.x, self.y)
 end
