@@ -67,6 +67,9 @@ local spawnTimer = 0
 -- initialize our last recorded Y value for a gap placement to base other gaps off of
 local lastY = -PIPE_HEIGHT + math.random(80) + 20
 
+-- scrolling variable to pause the game when we collide with a pipe
+local scrolling = true
+
 --[[
   Called exactly once at the beginning of the game; used to initialize the game.
 ]]
@@ -128,42 +131,52 @@ end
   and is passed into update dt.
 ]]
 function love.update(dt)
-  -- scroll our background and ground, looping back to 0 after a certain amount
-  backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
-  groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
+  if scrolling then
+    -- scroll our background and ground, looping back to 0 after a certain amount
+    backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
+    groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
 
-  -- spawn a new Pipe if the timer is past 2 seconds
-  spawnTimer = spawnTimer + dt
-  if spawnTimer > 2 then
-    -- modify the last Y coordinate we placed so pipe gaps aren't too far apart
-    -- no higher than 10 pixels below the top edge of the screen,
-    -- and no lower than a gap length (90 pixels) from the bottom
-    local y = math.max(-PIPE_HEIGHT + 10,
-      math.min(lastY + math.random(-20, 20), VIRTUAL_HEIGHT - 90 - PIPE_HEIGHT))
-    lastY = y
-    -- add a new pipe pair at the end of the screen at our new Y
-    table.insert(pipePairs, PipePair(y))
-    -- reset spawn timer
-    spawnTimer = 0
-  end
+    -- spawn a new Pipe if the timer is past 2 seconds
+    spawnTimer = spawnTimer + dt
+    if spawnTimer > 2 then
+      -- modify the last Y coordinate we placed so pipe gaps aren't too far apart
+      -- no higher than 10 pixels below the top edge of the screen,
+      -- and no lower than a gap length (90 pixels) from the bottom
+      local y = math.max(-PIPE_HEIGHT + 10,
+        math.min(lastY + math.random(-20, 20), VIRTUAL_HEIGHT - 90 - PIPE_HEIGHT))
+      lastY = y
+      -- add a new pipe pair at the end of the screen at our new Y
+      table.insert(pipePairs, PipePair(y))
+      -- reset spawn timer
+      spawnTimer = 0
+    end
 
-  -- for every pipe in the scene...
-  for key, pipePair in pairs(pipePairs) do
-    -- update pipe pair positions
-    pipePair:update(dt)
-  end
+    -- for every pipe in the scene...
+    for _key, pipePair in pairs(pipePairs) do
+      -- update pipe pair positions
+      pipePair:update(dt)
 
-  -- update our bird based on its own update logic
-  bird:update(dt)
+      -- check to see if bird collided with pipe
+      for _key, pipe in pairs(pipePair.pipes) do
+        if bird:collides(pipe) then
+          -- pause the game to show collision
+          scrolling = false
+        end
+      end
+    end
 
-  -- remove any flagged pipes
-  -- we need this second loop, rather than deleting in the previous loop, because
-  -- modifying the table in-place without explicit keys will result in skipping the
-  -- next pipe, since all implicit keys (numerical indices) are automatically shifted
-  -- down after a table removal
-  for k, pair in pairs(pipePairs) do
-    if pair.remove then
-      table.remove(pipePairs, k)
+    -- update our bird based on its own update logic
+    bird:update(dt)
+
+    -- remove any flagged pipes
+    -- we need this second loop, rather than deleting in the previous loop, because
+    -- modifying the table in-place without explicit keys will result in skipping the
+    -- next pipe, since all implicit keys (numerical indices) are automatically shifted
+    -- down after a table removal
+    for k, pair in pairs(pipePairs) do
+      if pair.remove then
+        table.remove(pipePairs, k)
+      end
     end
   end
 
