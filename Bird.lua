@@ -8,7 +8,7 @@ Bird = Class {}
 local GRAVITY = 10
 
 -- jump velocity; negative due to y-axis inversion
-local JUMP_VELOCITY = -3
+local JUMP_VELOCITY = -2
 
 --[[
   The init function on our class is called just once, when the object is first

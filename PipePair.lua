@@ -6,7 +6,7 @@
 PipePair = Class {}
 
 -- size of the gap between pipes
-local GAP_HEIGHT = 130
+GAP_HEIGHT = 100
 
 --[[
   The init function on our class is called just once, when the object is first

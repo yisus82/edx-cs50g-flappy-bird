@@ -33,6 +33,20 @@ require 'Pipe'
 ]]
 require 'PipePair'
 
+--[[
+  StateMachine is our exclusive class for transitioning between various states
+  in our game instead of clumping them together in our update and draw functions.
+]]
+require 'StateMachine'
+
+--[[
+  All of our states which will be used by StateMachine to transition between
+  instead of clumping them together in our update and draw functions.
+]]
+require 'states/Base'
+require 'states/Play'
+require 'states/Title'
+
 -- virtual resolution dimensions
 VIRTUAL_WIDTH = 512
 VIRTUAL_HEIGHT = 288
@@ -55,20 +69,8 @@ local GROUND_SCROLL_SPEED = 60
 -- point at which we should loop our background back to X 0
 local BACKGROUND_LOOPING_POINT = 413
 
--- our bird sprite
-local bird = Bird()
-
--- our table of spawning PipePairs
-local pipePairs = {}
-
--- our timer for spawning pipes
-local spawnTimer = 0
-
--- initialize our last recorded Y value for a gap placement to base other gaps off of
-local lastY = -PIPE_HEIGHT + math.random(80) + 20
-
--- scrolling variable to pause the game when we collide with a pipe
-local scrolling = true
+-- point at which we should loop our ground back to X 0
+local GROUND_LOOPING_POINT = 514
 
 --[[
   Called exactly once at the beginning of the game; used to initialize the game.
@@ -80,12 +82,26 @@ function love.load()
   -- app window title
   love.window.setTitle('Flappy Bird')
 
+  -- initialize our nice-looking retro text fonts
+  SmallFont = love.graphics.newFont('fonts/font.ttf', 8)
+  MediumFont = love.graphics.newFont('fonts/flappy.ttf', 14)
+  FlappyFont = love.graphics.newFont('fonts/flappy.ttf', 28)
+  HugeFont = love.graphics.newFont('fonts/flappy.ttf', 56)
+  love.graphics.setFont(FlappyFont)
+
   -- initialize our virtual resolution
   push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
     fullscreen = false,
     resizable = true,
     vsync = true
   })
+
+  -- initialize state machine with all state-returning functions
+  GameStateMachine = StateMachine {
+    ['Title'] = function() return Title() end,
+    ['Play'] = function() return Play() end,
+  }
+  GameStateMachine:change('Title')
 
   -- initialize input table
   love.keyboard.keysPressed = {}
@@ -131,54 +147,12 @@ end
   and is passed into update dt.
 ]]
 function love.update(dt)
-  if scrolling then
-    -- scroll our background and ground, looping back to 0 after a certain amount
-    backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
-    groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
+  -- update background and ground scroll offsets
+  backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
+  groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % GROUND_LOOPING_POINT
 
-    -- spawn a new Pipe if the timer is past 2 seconds
-    spawnTimer = spawnTimer + dt
-    if spawnTimer > 2 then
-      -- modify the last Y coordinate we placed so pipe gaps aren't too far apart
-      -- no higher than 10 pixels below the top edge of the screen,
-      -- and no lower than a gap length (90 pixels) from the bottom
-      local y = math.max(-PIPE_HEIGHT + 10,
-        math.min(lastY + math.random(-20, 20), VIRTUAL_HEIGHT - 90 - PIPE_HEIGHT))
-      lastY = y
-      -- add a new pipe pair at the end of the screen at our new Y
-      table.insert(pipePairs, PipePair(y))
-      -- reset spawn timer
-      spawnTimer = 0
-    end
-
-    -- for every pipe in the scene...
-    for _key, pipePair in pairs(pipePairs) do
-      -- update pipe pair positions
-      pipePair:update(dt)
-
-      -- check to see if bird collided with pipe
-      for _key, pipe in pairs(pipePair.pipes) do
-        if bird:collides(pipe) then
-          -- pause the game to show collision
-          scrolling = false
-        end
-      end
-    end
-
-    -- update our bird based on its own update logic
-    bird:update(dt)
-
-    -- remove any flagged pipes
-    -- we need this second loop, rather than deleting in the previous loop, because
-    -- modifying the table in-place without explicit keys will result in skipping the
-    -- next pipe, since all implicit keys (numerical indices) are automatically shifted
-    -- down after a table removal
-    for k, pair in pairs(pipePairs) do
-      if pair.remove then
-        table.remove(pipePairs, k)
-      end
-    end
-  end
+  -- we just update the state machine, which defers to the right state
+  GameStateMachine:update(dt)
 
   -- reset input table
   love.keyboard.keysPressed = {}
@@ -194,16 +168,11 @@ function love.draw()
   -- draw the background starting at top left (0, 0)
   love.graphics.draw(background, -backgroundScroll, 0)
 
-  -- render all the pipes in our scene
-  for _key, pipePair in pairs(pipePairs) do
-    pipePair:render()
-  end
+  -- render state machine between the background and the ground
+  GameStateMachine:render()
 
   -- draw the ground on top of the background, toward the bottom of the screen
   love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT - 16)
-
-  -- render our bird to the screen using its own render logic
-  bird:render()
 
   -- finish rendering at virtual resolution
   push:finish()
