@@ -11,7 +11,7 @@ Base = Class {}
 
 function Base:init() end
 
-function Base:enter() end
+function Base:enter(_enterParams) end
 
 function Base:exit() end
 

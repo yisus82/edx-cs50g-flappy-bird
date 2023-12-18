@@ -27,6 +27,9 @@ function PipePair:init(y)
 
   -- whether this pipe pair is ready to be removed from the scene
   self.remove = false
+
+  -- whether or not this pair of pipes has been scored
+  self.scored = false
 end
 
 --[[
@@ -48,7 +51,7 @@ end
   Render both the pipes within this PipesPair
 ]]
 function PipePair:render()
-  for k, pipe in pairs(self.pipes) do
+  for _, pipe in pairs(self.pipes) do
     pipe:render()
   end
 end

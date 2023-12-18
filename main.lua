@@ -46,6 +46,7 @@ require 'StateMachine'
 require 'states/Base'
 require 'states/Play'
 require 'states/Title'
+require 'states/Score'
 
 -- virtual resolution dimensions
 VIRTUAL_WIDTH = 512
@@ -100,6 +101,7 @@ function love.load()
   GameStateMachine = StateMachine {
     ['Title'] = function() return Title() end,
     ['Play'] = function() return Play() end,
+    ['Score'] = function() return Score() end
   }
   GameStateMachine:change('Title')
 
