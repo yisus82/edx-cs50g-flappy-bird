@@ -7,14 +7,6 @@
 Play = Class { __includes = Base }
 
 --[[
-  When we enter the play state, we expect to receive a high score as a parameter. If it's nil,
-  then this is the first time we're playing, so initialize it to 0.
-]]
-function Play:enter(params)
-  self.highScore = params.highScore or 0
-end
-
---[[
   Called when the state is first entered; initialize the bird and pipes here.
 ]]
 function Play:init()
@@ -111,7 +103,7 @@ function Play:render()
 
   -- render the high score to the top right
   love.graphics.setFont(FlappyFont)
-  love.graphics.print('High Score: ' .. tostring(self.highScore), VIRTUAL_WIDTH - 250, 8)
+  love.graphics.print('High Score: ' .. tostring(HighScore), VIRTUAL_WIDTH - 250, 8)
 
   -- render bird to the screen
   self.bird:render()

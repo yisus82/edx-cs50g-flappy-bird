@@ -7,7 +7,7 @@ Title = Class { __includes = Base }
 
 function Title:update(_dt)
   if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-    GameStateMachine:change('Play')
+    GameStateMachine:change('Countdown')
   end
 end
 

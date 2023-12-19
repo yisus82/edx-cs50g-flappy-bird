@@ -44,8 +44,9 @@ require 'StateMachine'
   instead of clumping them together in our update and draw functions.
 ]]
 require 'states/Base'
-require 'states/Play'
 require 'states/Title'
+require 'states/Countdown'
+require 'states/Play'
 require 'states/Score'
 
 -- virtual resolution dimensions
@@ -100,6 +101,7 @@ function love.load()
   -- initialize state machine with all state-returning functions
   GameStateMachine = StateMachine {
     ['Title'] = function() return Title() end,
+    ['Countdown'] = function() return Countdown() end,
     ['Play'] = function() return Play() end,
     ['Score'] = function() return Score() end
   }

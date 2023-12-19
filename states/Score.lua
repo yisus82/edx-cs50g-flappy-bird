@@ -6,7 +6,7 @@
 
 Score = Class { __includes = Base }
 
-local highScore = 0
+HighScore = 0
 
 --[[
   When we enter the score state, we expect to receive the score
@@ -14,7 +14,7 @@ local highScore = 0
 ]]
 function Score:enter(params)
   self.score = params.score
-  highScore = math.max(self.score, highScore)
+  HighScore = math.max(self.score, HighScore)
 end
 
 --[[
@@ -23,9 +23,7 @@ end
 function Score:update(_dt)
   -- go back to play if enter is pressed
   if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-    GameStateMachine:change('Play', {
-      highScore = highScore
-    })
+    GameStateMachine:change('Countdown')
   end
 end
 
@@ -42,7 +40,7 @@ function Score:render()
   love.graphics.printf('Score: ' .. tostring(self.score), 0, 100, VIRTUAL_WIDTH, 'center')
 
   -- render the high score to the middle of the screen
-  love.graphics.printf('High Score: ' .. tostring(highScore), 0, 116, VIRTUAL_WIDTH, 'center')
+  love.graphics.printf('High Score: ' .. tostring(HighScore), 0, 116, VIRTUAL_WIDTH, 'center')
 
   -- render instructions on how to play again
   love.graphics.printf('Press Enter to play again!', 0, 160, VIRTUAL_WIDTH, 'center')
