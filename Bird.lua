@@ -39,8 +39,8 @@ function Bird:update(dt)
   -- apply gravity to velocity
   self.dy = self.dy + GRAVITY * dt
 
-  -- add a sudden burst of negative gravity if we hit space
-  if love.keyboard.wasPressed('space') then
+  -- add a sudden burst of negative gravity if we hit space or we click the left mouse button
+  if love.keyboard.wasPressed('space') or love.mouse.wasPressed(1) then
     self.dy = JUMP_VELOCITY
     Sounds['jump']:play()
   end

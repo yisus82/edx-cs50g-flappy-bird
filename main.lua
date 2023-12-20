@@ -124,6 +124,9 @@ function love.load()
 
   -- initialize input table
   love.keyboard.keysPressed = {}
+
+  -- initialize mouse input table
+  love.mouse.buttonsPressed = {}
 end
 
 --[[
@@ -162,6 +165,24 @@ function love.keyboard.wasPressed(key)
 end
 
 --[[
+  Called whenever a mouse button is pressed.
+  @param x The mouse's x position.
+  @param y The mouse's y position.
+  @param button The button that was pressed.
+]]
+function love.mousepressed(_x, _y, button)
+  love.mouse.buttonsPressed[button] = true
+end
+
+--[[
+  Check our global input table for mouse buttons we activated during
+  this frame, looked up by their integer value.
+]]
+function love.mouse.wasPressed(button)
+  return love.mouse.buttonsPressed[button]
+end
+
+--[[
   Called every frame by LÖVE; dt will be elapsed time in seconds since the last frame,
   and is passed into update dt.
 ]]
@@ -175,6 +196,9 @@ function love.update(dt)
 
   -- reset input table
   love.keyboard.keysPressed = {}
+
+  -- reset mouse input table
+  love.mouse.buttonsPressed = {}
 end
 
 --[[
